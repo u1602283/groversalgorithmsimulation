@@ -61,7 +61,7 @@ public static class Program
     private static bool DoGroversAlgorithm(int nQubits, int answer, Random rnd)
     {
         var nStates = Math.Pow(2, nQubits); // Max number of potential outcomes
-        var nIterations = (int)(Math.PI / 4.0 * Math.Sqrt(nStates)); // Any more than this and you'll overshoot the marked state
+        var nIterations = Math.Round(Math.PI / 4.0 * Math.Sqrt(nStates)); // Any more than this and you'll overshoot the marked state
         var balancedStateValue = 1 / Math.Sqrt(nStates); // Start with an equal probability of any outcome
 
         // Just a unit vector representing the correct answer. Right now, we're statically defining this.
@@ -121,7 +121,7 @@ public static class Program
      * Also represented as D=2∣ψ0⟩⟨ψ0∣−I
      * - I is the corresponding identity matrix
      *
-     * E.g For a 2 qubit example (4 basis states)
+     * E.g. For a 2 qubit example (4 basis states)
      * 1. You'd multiply the column state vector the conjugate transpose of the state vector (we're only using real numbers here though)
      *     E.g.
      *     [

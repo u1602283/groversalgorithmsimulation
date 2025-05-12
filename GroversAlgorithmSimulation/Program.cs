@@ -6,10 +6,10 @@ public static class Program
 {
     // A greater number of qubits will give a greater accuracy. In lower dimensions, you'll easily overshoot the marked state and so can't get much closer to it
     private const int MinNQubits = 1;
-    private const int MaxNQubits = 12;
+    private const int MaxNQubits = 16;
 
     // How many times to run for each number of qubits
-    private const int NAttempts = 1000;
+    private const int NAttempts = 10000;
 
     // Don't mess with this unless you know what you're doing
     private static int MaxConcurrency => Environment.ProcessorCount;
@@ -51,7 +51,7 @@ public static class Program
 
             var results = await Task.WhenAll(tasks);
 
-            Console.WriteLine($"{nQubits} | {Math.Round(results.Count(r => r) / (double)NAttempts * 100, 2)}%");
+            Console.WriteLine($"{nQubits} | {Math.Round(results.Count(r => r) / (double)NAttempts * 100, 4)}%");
         }
 
         stopwatch.Stop();

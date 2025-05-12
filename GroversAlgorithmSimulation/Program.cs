@@ -1,18 +1,26 @@
-﻿namespace GroversAlgorithmSimulation;
+﻿using System.Diagnostics;
+
+namespace GroversAlgorithmSimulation;
 
 public static class Program
 {
     // A greater number of qubits will give a greater accuracy. In lower dimensions, you'll easily overshoot the marked state and so can't get much closer to it
     private const int MinNQubits = 1;
-    private const int MaxNQubits = 16;
+    private const int MaxNQubits = 12;
 
     // How many times to run for each number of qubits
     private const int NAttempts = 1000;
 
+    // Don't mess with this unless you know what you're doing
+    private static int MaxConcurrency => Environment.ProcessorCount;
     private static readonly Random Rnd = new();
+    private static readonly ThreadLocal<Random> ThreadRnd = new(() => new Random());
 
-    public static void Main()
+    public static async Task Main()
     {
+        var semaphore = new SemaphoreSlim(MaxConcurrency);
+        var stopwatch = Stopwatch.StartNew();
+
         Console.WriteLine("Grover's Algorithm Simulation\n\n");
         Console.WriteLine("Number of simulated qubits | Percentage accuracy");
 
@@ -20,12 +28,37 @@ public static class Program
         {
             var maxVal = (int)Math.Pow(2, nQubits) - 1;
             var answer = Rnd.Next(1, maxVal);
-            var results = Enumerable.Range(0, NAttempts).Select(_ => DoGroversAlgorithm(nQubits, answer)).ToArray();
+
+            var tasks = new Task<bool>[NAttempts];
+            for (var i = 0; i < NAttempts; i++)
+            {
+                await semaphore.WaitAsync();
+
+                var qubits = nQubits;
+                tasks[i] = Task.Run(() =>
+                {
+                    try
+                    {
+                        var localRnd = ThreadRnd.Value!;
+                        return DoGroversAlgorithm(qubits, answer, localRnd);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+            }
+
+            var results = await Task.WhenAll(tasks);
+
             Console.WriteLine($"{nQubits} | {Math.Round(results.Count(r => r) / (double)NAttempts * 100, 2)}%");
         }
+
+        stopwatch.Stop();
+        Console.WriteLine($"\nTotal elapsed time: {stopwatch.ElapsedMilliseconds / 1000.0} sec");
     }
 
-    private static bool DoGroversAlgorithm(int nQubits, int answer)
+    private static bool DoGroversAlgorithm(int nQubits, int answer, Random rnd)
     {
         var nStates = Math.Pow(2, nQubits); // Max number of potential outcomes
         var nIterations = (int)(Math.PI / 4.0 * Math.Sqrt(nStates)); // Any more than this and you'll overshoot the marked state
@@ -67,7 +100,7 @@ public static class Program
             cumulativeDistribution[i] = normalisedProbabilityDistribution[i] + (i > 0 ? cumulativeDistribution[i - 1] : 0);
         }
 
-        var val = Rnd.NextDouble();
+        var val = rnd.NextDouble();
         for (var i = 0; i < cumulativeDistribution.Length; i++)
         {
             if (!(cumulativeDistribution[i] >= val)) continue;

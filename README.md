@@ -21,3 +21,27 @@ Run with:
 ```
 dotnet run
 ```
+
+Example output:
+
+```
+Grover's Algorithm Simulation
+
+Number of simulated qubits | Percentage accuracy
+1 | 49.42%
+2 | 24.42%
+3 | 94.28%
+4 | 96.13%
+5 | 99.91%
+6 | 99.66%
+7 | 98.93%
+8 | 98.69%
+9 | 99.63%
+10 | 99.93%
+11 | 99.8%
+12 | 100%
+13 | 99.99%
+14 | 99.99%
+15 | 100%
+16 | 100%
+```

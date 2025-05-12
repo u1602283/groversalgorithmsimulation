@@ -21,7 +21,7 @@ public static class Program
         var semaphore = new SemaphoreSlim(MaxConcurrency);
         var stopwatch = Stopwatch.StartNew();
 
-        Console.WriteLine("Grover's Algorithm Simulation\n\n");
+        Console.WriteLine("Grover's Algorithm Simulation\n");
         Console.WriteLine("Number of simulated qubits | Percentage accuracy");
 
         for (var nQubits = MinNQubits; nQubits <= MaxNQubits; nQubits++)
